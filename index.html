@@ -1,8 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+</head>
+<body>
 <title>Proportion Plinko</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Lexend:wght@400;600;700&display=swap">
 <style>
 /* Layout: blueprint-grid arcade cabinet. Question "test paper" on the left, Plinko board + scoreboard on the right; stacks on phones. */
 :root{
@@ -22,7 +30,7 @@
   --good:#3ddc97;
   --bad:#ff6b6b;
   --display:"Bungee","Arial Black",Impact,system-ui,sans-serif;
-  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
 html,body{background:var(--ink);color:var(--text)}
@@ -34,6 +42,9 @@ body{
   background-size:24px 24px;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+table,input,button,select{font-family:var(--body)}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid var(--marquee);outline-offset:2px}
 .wrap{max-width:1280px;margin:0 auto;padding-block:16px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -93,10 +104,11 @@ button:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid 
 .grid-svg{width:100%;max-width:380px;height:auto;display:block;touch-action:manipulation}
 .grid-svg .pt{cursor:pointer}
 .tg-wrap{overflow-x:auto}
-table.tg{border-collapse:collapse;font-size:16px;min-width:420px}
-table.tg th,table.tg td{border:1px solid var(--paper-line);padding:8px 10px;text-align:left}
-table.tg th{background:#f0f2f7;font-size:14px}
-table.tg td.opt{text-align:center}
+table.tg{border-collapse:collapse;font-size:17px;width:100%;color:var(--paper-text);background:#fff}
+table.tg th,table.tg td{border:1px solid var(--paper-line);padding:10px 12px;text-align:left;color:var(--paper-text);line-height:1.35}
+table.tg th{background:#f0f2f7;font-size:15px;font-weight:700}
+table.tg td.opt,table.tg th.opt{text-align:center;width:1%}
+@media (max-width:520px){table.tg{font-size:15px}table.tg th,table.tg td{padding:8px 6px}table.tg th.opt{font-size:12px}.tgb{padding:8px 8px;font-size:13px}}
 .tgb{border:2px solid #c9cfdd;background:#fff;border-radius:8px;padding:6px 10px;font-weight:700;font-size:14px;color:var(--paper-text)}
 .tgb[aria-pressed="true"]{border-color:#1d3b8a;background:#e7eeff}
 .tgb.right{border-color:#17a56b;background:#d9f7ea}
@@ -343,8 +355,8 @@ function renderPaper(){
   } else if(q.type === "graph"){
     h += `<p class="q-text">${esc(q.text)}</p><p class="prompt">Tap two points on the grid. A line will connect them. Tap a point again to remove it.</p>${gridSVG()}`;
   } else if(q.type === "table"){
-    h += `<p class="q-text">${esc(q.text)}</p><p class="prompt">Choose one answer in each row.</p><div class="tg-wrap"><table class="tg"><thead><tr><th>Discount</th><th>Proportional</th><th>Non-proportional</th></tr></thead><tbody>` +
-      q.rows.map((r,i) => `<tr><td>${esc(r)}</td><td class="opt"><button type="button" class="tgb" data-r="${i}" data-v="P" aria-pressed="false" aria-label="${esc(r)}: proportional">Proportional</button></td><td class="opt"><button type="button" class="tgb" data-r="${i}" data-v="N" aria-pressed="false" aria-label="${esc(r)}: non-proportional">Non-prop.</button></td></tr>`).join("") +
+    h += `<p class="q-text">${esc(q.text)}</p><p class="prompt">Choose one answer in each row.</p><div class="tg-wrap"><table class="tg"><thead><tr><th>Discount</th><th class="opt">Proportional</th><th class="opt">Non-<br>proportional</th></tr></thead><tbody>` +
+      q.rows.map((r,i) => `<tr><td>${esc(r)}</td><td class="opt"><button type="button" class="tgb" data-r="${i}" data-v="P" aria-pressed="false" aria-label="${esc(r)}: proportional">Prop.</button></td><td class="opt"><button type="button" class="tgb" data-r="${i}" data-v="N" aria-pressed="false" aria-label="${esc(r)}: non-proportional">Non-prop.</button></td></tr>`).join("") +
       `</tbody></table></div>`;
   }
   h += `<div class="row"><button type="button" class="lock" id="lockBtn" disabled>Lock it in</button></div><div id="fb"></div>`;
@@ -719,7 +731,7 @@ function draw(time){
     ctx.globalAlpha = .9; drawBall(ax, 46, "#ffc83d"); ctx.globalAlpha = 1;
     ctx.setLineDash([3,6]); ctx.strokeStyle = "rgba(255,200,61,.35)"; ctx.beginPath(); ctx.moveTo(ax,58); ctx.lineTo(ax,SLOT_TOP); ctx.stroke(); ctx.setLineDash([]);
   } else {
-    ctx.font = "700 14px 'Atkinson Hyperlegible', sans-serif"; ctx.fillStyle = "rgba(159,179,218,.7)";
+    ctx.font = "600 14px Lexend, sans-serif"; ctx.fillStyle = "rgba(159,179,218,.7)";
     ctx.fillText(G && G.phase==="drop" ? "Ball in play…" : "Answer correctly to earn a ball", W/2, 36);
   }
   // pegs
@@ -772,3 +784,6 @@ function loop(now){
 }
 requestAnimationFrame(loop);
 </script>
+
+</body>
+</html>
